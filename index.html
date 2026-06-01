@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Betita</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f1f5f9;
+}
+
+header{
+  background:#2563eb;
+  color:white;
+  padding:15px 20px;
+}
+
+#contenedor{
+  display:flex;
+  height:calc(100vh - 60px);
+}
+
+#clientes{
+  width:300px;
+  background:white;
+  border-right:1px solid #ddd;
+  overflow-y:auto;
+}
+
+.cliente{
+  padding:15px;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
+}
+
+.cliente:hover{
+  background:#f8fafc;
+}
+
+#chat{
+  flex:1;
+  padding:20px;
+  overflow-y:auto;
+}
+
+.mensaje{
+  background:white;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>Panel Betita</h2>
+</header>
+
+<div id="contenedor">
+
+  <div id="clientes">
+  </div>
+
+  <div id="chat">
+    Selecciona una conversación
+  </div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  get
+}
+from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC-_oJGuOjCwdBBkJ0kSZ2YUYxldDknrls",
+  authDomain: "panel-bot-shopify.firebaseapp.com",
+  databaseURL: "https://panel-bot-shopify-default-rtdb.firebaseio.com",
+  projectId: "panel-bot-shopify",
+  storageBucket: "panel-bot-shopify.firebasestorage.app",
+  messagingSenderId: "156927690858",
+  appId: "1:156927690858:web:c032cc78b4b82826f0e213"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const clientesDiv =
+document.getElementById("clientes");
+
+const chatDiv =
+document.getElementById("chat");
+
+async function cargarClientes(){
+
+  const snapshot =
+  await get(
+    ref(db,"conversaciones")
+  );
+
+  if(!snapshot.exists()){
+    return;
+  }
+
+  const datos = snapshot.val();
+
+  clientesDiv.innerHTML = "";
+
+  Object.keys(datos).forEach(id => {
+
+    const div =
+    document.createElement("div");
+
+    div.className = "cliente";
+
+    div.textContent = id;
+
+    div.onclick = () =>
+    mostrarChat(id,datos[id]);
+
+    clientesDiv.appendChild(div);
+
+  });
+
+}
+
+function mostrarChat(id,mensajes){
+
+  chatDiv.innerHTML =
+  `<h3>${id}</h3>`;
+
+  Object.values(mensajes)
+  .forEach(msg => {
+
+    chatDiv.innerHTML += `
+      <div class="mensaje">
+        <strong>${msg.tipo}</strong><br>
+        ${msg.texto}
+      </div>
+    `;
+
+  });
+
+}
+
+cargarClientes();
+
+</script>
+
+</body>
+</html>
